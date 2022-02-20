@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:car_parking/models/parking_models.dart';
 import 'package:flutter/material.dart';
