@@ -34,36 +34,36 @@ class AuthProvider extends ChangeNotifier {
         .collection("Users")
         .where("number", isEqualTo: phoneNumber)
         .get()
-        .then((value) {
+        .then((value) async {
       if (value.docs.isNotEmpty) {
         showtoast(context, "Mobile Number Already Registered", Colors.red);
         return;
+      } else {
+        await _auth.verifyPhoneNumber(
+          timeout: const Duration(seconds: 60),
+          phoneNumber: "+91" + phoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) async {},
+          verificationFailed: (FirebaseAuthException e) {
+            showtoast(context, e.message.toString(), Colors.red);
+            Navigator.pop(context);
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            setSending(false);
+            Navigator.pop(context);
+            verificationid = verificationId;
+            if (phone != "") {
+              Navigator.pushNamed(
+                context,
+                '/otp',
+              );
+            }
+            notifyListeners();
+            showtoast(context, "Otp has been sent to your Number", Colors.blue);
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {},
+        );
       }
     });
-
-    await _auth.verifyPhoneNumber(
-      timeout: const Duration(seconds: 60),
-      phoneNumber: "+91" + phoneNumber,
-      verificationCompleted: (PhoneAuthCredential credential) async {},
-      verificationFailed: (FirebaseAuthException e) {
-        showtoast(context, e.message.toString(), Colors.red);
-        Navigator.pop(context);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setSending(false);
-        Navigator.pop(context);
-        verificationid = verificationId;
-        if (phone != "") {
-          Navigator.pushNamed(
-            context,
-            '/otp',
-          );
-        }
-        notifyListeners();
-        showtoast(context, "Otp has been sent to your Number", Colors.blue);
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
 
     setSending(false);
     notifyListeners();
